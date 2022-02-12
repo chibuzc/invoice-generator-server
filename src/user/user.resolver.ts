@@ -3,6 +3,8 @@ import { UserService } from './user.service';
 import { UserModel } from './model/user.model';
 import { UpdateUserInput } from './dto/update-user.input';
 import { CreateUserInput } from './dto/create-user.input';
+import { getErrorCode } from 'src/errors';
+import { errorName } from 'src/errors/errorConstants';
 
 @Resolver(() => UserModel)
 export class UserResolver {
@@ -18,18 +20,19 @@ export class UserResolver {
     return await this.userService.findAll();
   }
 
-  @Query(() => UserModel, { name: 'user' })
-  async findOne(@Args('id', { type: () => Int }) id: number) {
-    return this.userService.findOne(id);
+  @Query(() => UserModel)
+  async findOne(@Args('id') id: string) {
+    return await this.userService.findOne(id);
   }
 
-  @Mutation(() => UserModel)
+  @Mutation(() => Boolean)
   async updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
-    return this.userService.update(updateUserInput.id, updateUserInput);
-  }
+    const isUpdated = await this.userService.update(updateUserInput);
+    if (!isUpdated) {
+      const error = getErrorCode(errorName.NOT_FOUND);
+      throw Error(error);
+    }
 
-  @Mutation(() => UserModel)
-  async removeUser(@Args('id', { type: () => Int }) id: number) {
-    return this.userService.remove(id);
+    return true;
   }
 }
