@@ -33,3 +33,13 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+
+# db config
+ormconfig.json
+ormconfig.docker.json
+
+# db
+/pgdata
+
+# env
+.env
