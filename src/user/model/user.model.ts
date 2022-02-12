@@ -10,9 +10,9 @@ import {
 @ObjectType()
 @Entity('user')
 export class UserModel {
-  @Field(() => Int)
+  @Field()
   @PrimaryGeneratedColumn('uuid')
-  id: number;
+  id: string;
 
   @Field()
   @Column({ nullable: false })

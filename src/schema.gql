@@ -3,7 +3,7 @@
 # ------------------------------------------------------
 
 type UserModel {
-  id: Int!
+  id: String!
   businessName: String!
   email: String!
   password: String!
@@ -21,13 +21,12 @@ scalar DateTime
 
 type Query {
   findAll: [UserModel!]!
-  user(id: Int!): UserModel!
+  findOne(id: String!): UserModel!
 }
 
 type Mutation {
   createUser(createUserInput: CreateUserInput!): UserModel!
-  updateUser(updateUserInput: UpdateUserInput!): UserModel!
-  removeUser(id: Int!): UserModel!
+  updateUser(updateUserInput: UpdateUserInput!): Boolean!
 }
 
 input CreateUserInput {
@@ -46,5 +45,5 @@ input UpdateUserInput {
   address: String
   logo: String
   phoneNumber: String
-  id: Int!
+  id: String!
 }
