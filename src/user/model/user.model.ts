@@ -1,9 +1,15 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 @ObjectType()
+@Entity('user')
 export class UserModel {
-
   @Field(() => Int)
   @PrimaryGeneratedColumn('uuid')
   id: number;
@@ -40,5 +46,5 @@ export class UserModel {
   @Field()
   @Column()
   @UpdateDateColumn()
-  updatedAt: Date
+  updatedAt: Date;
 }
