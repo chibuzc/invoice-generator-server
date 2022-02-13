@@ -18,8 +18,13 @@ export class UserService {
     return await this.userRepository.find();
   }
 
-  async findOne(id: string) {
-    return await this.userRepository.findOne(id);
+  async findOne(userInput: Partial<UserModel>) {
+    const users = await this.userRepository.find(userInput);
+    if (users.length) {
+      return users[0]
+    } else {
+      return null
+    }
   }
 
   async update(updateUserInput: UpdateUserInput) {

@@ -19,7 +19,7 @@ export class UserModel {
   businessName: string;
 
   @Field()
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique:true })
   email: string;
 
   @Field()
@@ -35,7 +35,7 @@ export class UserModel {
   logo: string;
 
   @Field()
-  @Column({ nullable: false })
+  @Column({ nullable: false, unique: true })
   phoneNumber: string;
 
   @Field()
