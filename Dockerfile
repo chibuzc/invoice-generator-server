@@ -10,5 +10,11 @@ COPY ./ ./
 COPY ormconfig.docker.json ./ormconfig.json
 COPY .env .
 
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN chmod 777 /usr/local/bin/docker-entrypoint.sh && \
+    ln -s usr/local/bin/docker-entrypoint.sh / # backwards compat
+
+ENTRYPOINT ["sh","docker-entrypoint.sh"]
+
 EXPOSE 3000
 CMD ["npm", "start"]

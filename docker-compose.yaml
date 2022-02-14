@@ -8,7 +8,7 @@ services:
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     ports:
-      - "5432"
+      - "4321:5432"
   web:
     image: chibuzc/invoice-generator-server
     depends_on:
