@@ -1,18 +1,11 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { ObjectType, Field, InputType } from '@nestjs/graphql';
 
 @ObjectType()
 export class Item {
   @Field()
   name: string;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   description?: string;
 
   @Field()
@@ -21,7 +14,24 @@ export class Item {
   @Field()
   amount: number;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   discount?: number;
+}
 
+@InputType()
+export class ItemInput {
+  @Field()
+  name: string;
+
+  @Field({ nullable: true })
+  description?: string;
+
+  @Field()
+  quantity: number;
+
+  @Field()
+  amount: number;
+
+  @Field({ nullable: true })
+  discount?: number;
 }

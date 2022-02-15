@@ -6,6 +6,6 @@ import { InvoiceModel } from './model/invoice.model';
 
 @Module({
   imports: [TypeOrmModule.forFeature([InvoiceModel])],
-  providers: [InvoiceResolver, InvoiceService]
+  providers: [InvoiceResolver, InvoiceService],
 })
 export class InvoiceModule {}

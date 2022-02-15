@@ -1,4 +1,4 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field } from '@nestjs/graphql';
 import {
   Column,
   CreateDateColumn,
@@ -19,7 +19,7 @@ export class UserModel {
   businessName: string;
 
   @Field()
-  @Column({ nullable: false, unique:true })
+  @Column({ nullable: false, unique: true })
   email: string;
 
   @Field()

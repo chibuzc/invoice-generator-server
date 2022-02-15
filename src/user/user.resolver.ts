@@ -1,14 +1,19 @@
-import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { UserModel } from './model/user.model';
 import { UpdateUserInput } from './dto/update-user.input';
-import { CreateUserInput, CreateUserOutput, LoginUserInput, LoginUserOutput } from './dto/create-user.input';
+import {
+  CreateUserInput,
+  CreateUserOutput,
+  LoginUserInput,
+  LoginUserOutput,
+} from './dto/create-user.input';
 import { getErrorCode } from 'src/errors';
 import { errorName } from 'src/errors/errorConstants';
-import {hash} from "bcryptjs";
+import { hash } from 'bcryptjs';
 const bcrypt = require('bcryptjs');
-import {sign} from "jsonwebtoken";
-const jwt = require ("jsonwebtoken");
+import { sign } from 'jsonwebtoken';
+const jwt = require('jsonwebtoken');
 
 @Resolver(() => UserModel)
 export class UserResolver {
@@ -17,26 +22,29 @@ export class UserResolver {
 
   @Mutation(() => CreateUserOutput)
   async createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
-    const { email } = createUserInput ;
+    const { email } = createUserInput;
     try {
-      const existingUser =  await this.userService.findOne({email});
+      const existingUser = await this.userService.findOne({ email });
       if (existingUser) {
         const error = getErrorCode(errorName.UNAUTHORIZED);
+
         throw Error(error);
       } else {
         createUserInput.password = await hash(createUserInput.password, 13);
         const user = await this.userService.create(createUserInput);
-        const {id, password, ...userInfo} = user;
+        const { password, ...userInfo } = user;
 
         return {
           ...userInfo,
           accessToken: sign({ userId: user.id }, this.JWT_SECRET, {
-            expiresIn: process.env.JWT_EXPIRE
+            expiresIn: process.env.JWT_EXPIRE,
           }),
         };
       }
     } catch (e) {
+      console.log(e);
       const error = getErrorCode(errorName.SERVER_ERROR);
+
       throw Error(error);
     }
   }
@@ -48,12 +56,12 @@ export class UserResolver {
 
   @Query(() => UserModel)
   async findOne(@Args('id') id: string) {
-    const user = await this.userService.findOne({id});
+    const user = await this.userService.findOne({ id });
     if (!user) {
       const error = getErrorCode(errorName.NOT_FOUND);
       throw Error(error);
     } else {
-      return user
+      return user;
     }
   }
 
@@ -69,8 +77,8 @@ export class UserResolver {
 
   @Query(() => LoginUserOutput)
   async login(@Args('loginUserInput') loginUserInput: LoginUserInput) {
-    const {email, password } = loginUserInput;
-    const user = await this.userService.findOne({email});
+    const { email, password } = loginUserInput;
+    const user = await this.userService.findOne({ email });
     if (!user) {
       const error = getErrorCode(errorName.NOT_FOUND);
       throw Error(error);
@@ -81,13 +89,12 @@ export class UserResolver {
         throw Error(error);
       } else {
         const accessToken = jwt.sign({ id: user.id }, this.JWT_SECRET, {
-          expiresIn: process.env.JWT_EXPIRE
+          expiresIn: process.env.JWT_EXPIRE,
         });
         return {
-          accessToken
-        }
+          accessToken,
+        };
       }
     }
   }
-
 }

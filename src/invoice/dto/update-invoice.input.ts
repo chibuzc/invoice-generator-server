@@ -1,31 +1,30 @@
 import { CreateInvoiceInput } from './create-invoice.input';
-import { InputType, Field, Int, PartialType } from '@nestjs/graphql';
-import { Column, CreateDateColumn, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
-import { Item } from './item';
+import { InputType, Field, PartialType } from '@nestjs/graphql';
+import { ItemInput } from './item';
 
 @InputType()
 export class UpdateInvoiceInput extends PartialType(CreateInvoiceInput) {
   @Field()
   id: string;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   customerName?: string;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   shippingAddress?: string;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   billingAddress?: string;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   phoneNumber?: string;
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   transactionDate?: Date;
 
-  @Field(() => [Item], {nullable: true})
-  items?: Item[];
+  @Field(() => [ItemInput], { nullable: true })
+  items?: ItemInput[];
 
-  @Field({nullable: true})
+  @Field({ nullable: true })
   dueDate?: Date;
 }

@@ -22,9 +22,9 @@ export class InvoiceService {
   async findOne(invoiceInput: Partial<InvoiceModel>) {
     const invoices = await this.invoiceRepository.find(invoiceInput);
     if (invoices.length) {
-      return invoices[0]
+      return invoices[0];
     } else {
-      return null
+      return null;
     }
   }
 
@@ -34,7 +34,7 @@ export class InvoiceService {
     if (!invoice) {
       return null;
     }
-    invoice.total = invoiceInput.items.reduce((a, b) => a + b.amount, 0)
+    invoice.total = invoiceInput.items.reduce((a, b) => a + b.amount, 0);
 
     await this.invoiceRepository.update(id, invoiceInput);
     return true;
