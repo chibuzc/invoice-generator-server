@@ -27,14 +27,19 @@ export class InvoiceResolver {
     );
   }
 
-  @Query(() => [InvoiceModel], { name: 'invoice' })
-  async findAll() {
-    return await this.invoiceService.findAll();
+  @Query(() => [InvoiceModel])
+  @UseGuards(new AuthGuard())
+  async invoices(@Context('authInfo') authInfo) {
+    return await this.invoiceService.findAll({ user: authInfo.userId });
   }
 
-  @Query(() => InvoiceModel, { name: 'invoice' })
-  async findOne(@Args('id') id: string) {
-    const invoice = await this.invoiceService.findOne({ id });
+  @Query(() => InvoiceModel)
+  @UseGuards(new AuthGuard())
+  async invoice(@Context('authInfo') authInfo, @Args('id') id: string) {
+    const invoice = await this.invoiceService.findOne({
+      id,
+      user: authInfo.userId,
+    });
     if (!invoice) {
       const error = getErrorCode(errorName.NOT_FOUND);
       throw Error(error);
@@ -44,10 +49,15 @@ export class InvoiceResolver {
   }
 
   @Mutation(() => InvoiceModel)
+  @UseGuards(new AuthGuard())
   async updateInvoice(
+    @Context('authInfo') authInfo,
     @Args('updateInvoiceInput') updateInvoiceInput: UpdateInvoiceInput,
   ) {
-    const isUpdated = await this.invoiceService.update(updateInvoiceInput);
+    const isUpdated = await this.invoiceService.update(
+      updateInvoiceInput,
+      authInfo.userId,
+    );
     if (!isUpdated) {
       const error = getErrorCode(errorName.NOT_FOUND);
       throw Error(error);

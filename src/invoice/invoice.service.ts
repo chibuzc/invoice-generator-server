@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UpdateInvoiceInput } from './dto/update-invoice.input';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { FindConditions, Repository } from 'typeorm';
 import { InvoiceModel } from './model/invoice.model';
 import { UserService } from 'src/user/user.service';
 import { DateHelperService } from 'src/utils/date-helper/date-helper.service';
@@ -41,11 +41,12 @@ export class InvoiceService {
     });
   }
 
-  async findAll() {
-    return await this.invoiceRepository.find();
+  async findAll(options: FindConditions<InvoiceModel> = {}) {
+    console.log(options);
+    return await this.invoiceRepository.find(options);
   }
 
-  async findOne(invoiceInput: Partial<InvoiceModel>) {
+  async findOne(invoiceInput: FindConditions<InvoiceModel>) {
     const invoices = await this.invoiceRepository.find(invoiceInput);
     if (invoices.length) {
       return invoices[0];
@@ -54,9 +55,12 @@ export class InvoiceService {
     }
   }
 
-  async update(updateInvoiceInput: UpdateInvoiceInput) {
+  // to also update this by user and get id from params
+  async update(updateInvoiceInput: UpdateInvoiceInput, userId: string) {
     const { id, ...invoiceInput } = updateInvoiceInput;
-    const invoice = await this.invoiceRepository.findOne(id);
+    const invoice = await this.invoiceRepository.findOne({
+      where: { id, user: userId },
+    });
     if (!invoice) {
       return null;
     }

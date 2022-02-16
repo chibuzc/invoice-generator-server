@@ -72,6 +72,7 @@ type Query {
   users: [UserModel!]!
   user(id: String!): UserModel!
   login(loginUserInput: LoginUserInput!): LoginUserOutput!
+  invoices: [InvoiceModel!]!
   invoice(id: String!): InvoiceModel!
 }
 
