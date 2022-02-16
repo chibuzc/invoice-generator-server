@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 
 @ObjectType()
-@Entity('user')
+@Entity('users')
 export class UserModel {
   @Field()
   @PrimaryGeneratedColumn('uuid')

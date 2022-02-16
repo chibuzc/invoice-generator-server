@@ -4,6 +4,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -60,6 +61,7 @@ export class InvoiceModel {
   updatedAt: Date;
 
   @Field(() => UserModel)
-  @ManyToOne(() => InvoiceModel, (invoice) => invoice.user)
+  @ManyToOne(() => UserModel)
+  @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
   user: UserModel;
 }
