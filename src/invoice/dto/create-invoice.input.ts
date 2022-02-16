@@ -16,13 +16,13 @@ export class CreateInvoiceInput {
   phoneNumber: string;
 
   @Field()
-  transactionDate: Date;
+  transactionDate: string;
 
   @Field(() => [ItemInput])
   items: ItemInput[];
 
   @Field()
-  dueDate: Date;
+  dueDate: string;
 }
 
 @ObjectType()

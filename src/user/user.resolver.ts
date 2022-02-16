@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { UserModel } from './model/user.model';
 import { UpdateUserInput } from './dto/update-user.input';
@@ -11,9 +11,11 @@ import {
 import { getErrorCode } from 'src/errors';
 import { errorName } from 'src/errors/errorConstants';
 import { hash } from 'bcryptjs';
-const bcrypt = require('bcryptjs');
 import { sign } from 'jsonwebtoken';
-const jwt = require('jsonwebtoken');
+import * as bcrypt from 'bcryptjs';
+import * as jwt from 'jsonwebtoken';
+import { UseGuards } from '@nestjs/common';
+import { AuthGuard } from './authGuard';
 
 @Resolver(() => UserModel)
 export class UserResolver {
@@ -49,13 +51,16 @@ export class UserResolver {
     }
   }
 
+  // for admin only
   @Query(() => [UserModel])
-  async findAll() {
+  @UseGuards(new AuthGuard())
+  async users(@Context('authInfo') authInfo) {
+    console.log(authInfo);
     return await this.userService.findAll();
   }
 
   @Query(() => UserModel)
-  async findOne(@Args('id') id: string) {
+  async user(@Args('id') id: string) {
     const user = await this.userService.findOne({ id });
     if (!user) {
       const error = getErrorCode(errorName.NOT_FOUND);

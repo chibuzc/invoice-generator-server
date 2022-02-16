@@ -21,9 +21,9 @@ export class UserService {
   async findOne(userInput: Partial<UserModel>) {
     const users = await this.userRepository.find(userInput);
     if (users.length) {
-      return users[0]
+      return users[0];
     } else {
-      return null
+      return null;
     }
   }
 

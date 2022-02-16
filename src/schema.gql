@@ -69,8 +69,8 @@ type CreateInvoiceOutput {
 }
 
 type Query {
-  findAll: [UserModel!]!
-  findOne(id: String!): UserModel!
+  users: [UserModel!]!
+  user(id: String!): UserModel!
   login(loginUserInput: LoginUserInput!): LoginUserOutput!
   invoice(id: String!): InvoiceModel!
 }
@@ -111,9 +111,9 @@ input CreateInvoiceInput {
   shippingAddress: String!
   billingAddress: String!
   phoneNumber: String!
-  transactionDate: DateTime!
+  transactionDate: String!
   items: [ItemInput!]!
-  dueDate: DateTime!
+  dueDate: String!
 }
 
 input ItemInput {
@@ -125,6 +125,7 @@ input ItemInput {
 }
 
 input UpdateInvoiceInput {
+  id: String!
   customerName: String
   shippingAddress: String
   billingAddress: String
@@ -132,5 +133,4 @@ input UpdateInvoiceInput {
   transactionDate: DateTime
   items: [ItemInput!]
   dueDate: DateTime
-  id: String!
 }
