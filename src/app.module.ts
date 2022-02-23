@@ -16,7 +16,8 @@ import { InvoiceModule } from './invoice/invoice.module';
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
-    })
+      context: ({ req }) => ({ headers: req.headers }),
+    }),
   ],
   controllers: [AppController],
   providers: [AppService],

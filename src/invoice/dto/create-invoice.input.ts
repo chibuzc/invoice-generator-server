@@ -1,9 +1,9 @@
-import { InputType, Int, Field, ObjectType } from '@nestjs/graphql';
-import { Item } from './item';
+import { InputType, Field, ObjectType } from '@nestjs/graphql';
+
+import { Item, ItemInput } from './item';
 
 @InputType()
 export class CreateInvoiceInput {
-
   @Field()
   customerName: string;
 
@@ -17,15 +17,14 @@ export class CreateInvoiceInput {
   phoneNumber: string;
 
   @Field()
-  transactionDate: Date;
+  transactionDate: string;
 
-  @Field(() => [Item])
-  items: Item[];
+  @Field(() => [ItemInput])
+  items: ItemInput[];
 
   @Field()
-  dueDate: Date;
+  dueDate: string;
 }
-
 
 @ObjectType()
 export class CreateInvoiceOutput {

@@ -24,6 +24,9 @@ export class CreateUserInput {
 @ObjectType()
 export class CreateUserOutput {
   @Field()
+  id: string;
+
+  @Field()
   accessToken: string;
 
   @Field()
@@ -43,7 +46,7 @@ export class CreateUserOutput {
 }
 
 @ObjectType()
-export class LoginUserOutput{
+export class LoginUserOutput {
   @Field()
   accessToken: string;
 }

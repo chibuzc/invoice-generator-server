@@ -1,8 +1,11 @@
-import { ObjectType, Field, Int } from '@nestjs/graphql';
+import { ObjectType, Field } from '@nestjs/graphql';
+import { UserModel } from 'src/user/model/user.model';
 import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -35,7 +38,8 @@ export class InvoiceModel {
   @Column()
   transactionDate: Date;
 
-  @Column('jsonb', )
+  @Field(() => [Item])
+  @Column('jsonb')
   items: Item[];
 
   @Field()
@@ -55,4 +59,9 @@ export class InvoiceModel {
   @Column()
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Field(() => UserModel)
+  @ManyToOne(() => UserModel)
+  @JoinColumn([{ name: 'userId', referencedColumnName: 'id' }])
+  user: UserModel;
 }

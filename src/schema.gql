@@ -20,6 +20,7 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type CreateUserOutput {
+  id: String!
   accessToken: String!
   businessName: String!
   email: String!
@@ -32,10 +33,47 @@ type LoginUserOutput {
   accessToken: String!
 }
 
+type Item {
+  name: String!
+  description: String
+  quantity: Float!
+  amount: Float!
+  discount: Float
+}
+
+type InvoiceModel {
+  id: String!
+  customerName: String!
+  shippingAddress: String!
+  billingAddress: String!
+  phoneNumber: String!
+  transactionDate: DateTime!
+  items: [Item!]!
+  total: Float!
+  dueDate: DateTime!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  user: UserModel!
+}
+
+type CreateInvoiceOutput {
+  id: String!
+  customerName: String!
+  shippingAddress: String!
+  billingAddress: String!
+  phoneNumber: String!
+  transactionDate: DateTime!
+  items: [Item!]!
+  total: Float!
+  dueDate: DateTime!
+}
+
 type Query {
-  findAll: [UserModel!]!
-  findOne(id: String!): UserModel!
+  users: [UserModel!]!
+  user(id: String!): UserModel!
   login(loginUserInput: LoginUserInput!): LoginUserOutput!
+  invoices: [InvoiceModel!]!
+  invoice(id: String!): InvoiceModel!
 }
 
 input LoginUserInput {
@@ -46,6 +84,8 @@ input LoginUserInput {
 type Mutation {
   createUser(createUserInput: CreateUserInput!): CreateUserOutput!
   updateUser(updateUserInput: UpdateUserInput!): Boolean!
+  createInvoice(createInvoiceInput: CreateInvoiceInput!): CreateInvoiceOutput!
+  updateInvoice(updateInvoiceInput: UpdateInvoiceInput!): InvoiceModel!
 }
 
 input CreateUserInput {
@@ -65,4 +105,33 @@ input UpdateUserInput {
   logo: String
   phoneNumber: String
   id: String!
+}
+
+input CreateInvoiceInput {
+  customerName: String!
+  shippingAddress: String!
+  billingAddress: String!
+  phoneNumber: String!
+  transactionDate: String!
+  items: [ItemInput!]!
+  dueDate: String!
+}
+
+input ItemInput {
+  name: String!
+  description: String
+  quantity: Float!
+  amount: Float!
+  discount: Float
+}
+
+input UpdateInvoiceInput {
+  id: String!
+  customerName: String
+  shippingAddress: String
+  billingAddress: String
+  phoneNumber: String
+  transactionDate: DateTime
+  items: [ItemInput!]
+  dueDate: DateTime
 }
