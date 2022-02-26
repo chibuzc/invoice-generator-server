@@ -14,8 +14,9 @@ import { hash } from 'bcryptjs';
 import { sign } from 'jsonwebtoken';
 import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
-import { UseGuards } from '@nestjs/common';
+import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { AuthGuard } from './authGuard';
+import { ForbiddenError } from 'apollo-server-express';
 
 @Resolver(() => UserModel)
 export class UserResolver {
@@ -25,29 +26,29 @@ export class UserResolver {
   @Mutation(() => CreateUserOutput)
   async createUser(@Args('createUserInput') createUserInput: CreateUserInput) {
     const { email } = createUserInput;
-    try {
-      const existingUser = await this.userService.findOne({ email });
-      if (existingUser) {
-        const error = getErrorCode(errorName.UNAUTHORIZED);
 
-        throw Error(error);
-      } else {
-        createUserInput.password = await hash(createUserInput.password, 13);
-        const user = await this.userService.create(createUserInput);
-        const { password, ...userInfo } = user;
+    const existingUser = await this.userService.findOne({ email });
 
-        return {
-          ...userInfo,
-          accessToken: sign({ userId: user.id }, this.JWT_SECRET, {
-            expiresIn: process.env.JWT_EXPIRE,
-          }),
-        };
-      }
-    } catch (e) {
-      console.log(e);
-      const error = getErrorCode(errorName.SERVER_ERROR);
+    if (existingUser) {
+      // throw new ForbiddenError('user already exists', {
+      //   code: HttpStatus.FORBIDDEN,
+      //   message: 'user already exists',
+      // });
+      throw new HttpException(
+        { status: HttpStatus.FORBIDDEN, error: 'User already exists' },
+        HttpStatus.FORBIDDEN,
+      );
+    } else {
+      createUserInput.password = await hash(createUserInput.password, 13);
+      const user = await this.userService.create(createUserInput);
+      const { password, ...userInfo } = user;
 
-      throw Error(error);
+      return {
+        ...userInfo,
+        accessToken: sign({ userId: user.id }, this.JWT_SECRET, {
+          expiresIn: process.env.JWT_EXPIRE,
+        }),
+      };
     }
   }
 
@@ -77,6 +78,7 @@ export class UserResolver {
       const error = getErrorCode(errorName.NOT_FOUND);
       throw Error(error);
     }
+
     return true;
   }
 
@@ -91,11 +93,13 @@ export class UserResolver {
       const isMatch = await bcrypt.compare(password, user.password);
       if (!isMatch) {
         const error = getErrorCode(errorName.NOT_FOUND);
+
         throw Error(error);
       } else {
         const accessToken = jwt.sign({ id: user.id }, this.JWT_SECRET, {
           expiresIn: process.env.JWT_EXPIRE,
         });
+
         return {
           accessToken,
         };
