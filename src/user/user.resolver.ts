@@ -16,11 +16,11 @@ import * as bcrypt from 'bcryptjs';
 import * as jwt from 'jsonwebtoken';
 import { HttpException, HttpStatus, UseGuards } from '@nestjs/common';
 import { AuthGuard } from './authGuard';
-import { ForbiddenError } from 'apollo-server-express';
 
 @Resolver(() => UserModel)
 export class UserResolver {
   constructor(private readonly userService: UserService) {}
+
   JWT_SECRET = process.env.JWT_SECRET;
 
   @Mutation(() => CreateUserOutput)
@@ -30,26 +30,22 @@ export class UserResolver {
     const existingUser = await this.userService.findOne({ email });
 
     if (existingUser) {
-      // throw new ForbiddenError('user already exists', {
-      //   code: HttpStatus.FORBIDDEN,
-      //   message: 'user already exists',
-      // });
       throw new HttpException(
         { status: HttpStatus.FORBIDDEN, error: 'User already exists' },
         HttpStatus.FORBIDDEN,
       );
-    } else {
-      createUserInput.password = await hash(createUserInput.password, 13);
-      const user = await this.userService.create(createUserInput);
-      const { password, ...userInfo } = user;
-
-      return {
-        ...userInfo,
-        accessToken: sign({ userId: user.id }, this.JWT_SECRET, {
-          expiresIn: process.env.JWT_EXPIRE,
-        }),
-      };
     }
+
+    createUserInput.password = await hash(createUserInput.password, 13);
+    const user = await this.userService.create(createUserInput);
+    const { password, ...userInfo } = user;
+
+    return {
+      ...userInfo,
+      accessToken: sign({ userId: user.id }, this.JWT_SECRET, {
+        expiresIn: process.env.JWT_EXPIRE,
+      }),
+    };
   }
 
   // for admin only
@@ -64,16 +60,31 @@ export class UserResolver {
   async user(@Args('id') id: string) {
     const user = await this.userService.findOne({ id });
     if (!user) {
-      const error = getErrorCode(errorName.NOT_FOUND);
-      throw Error(error);
-    } else {
-      return user;
+      throw new HttpException(
+        { status: HttpStatus.NOT_FOUND, error: 'User not found' },
+        HttpStatus.NOT_FOUND,
+      );
     }
+
+    return user;
   }
 
+  @UseGuards(new AuthGuard())
   @Mutation(() => Boolean)
-  async updateUser(@Args('updateUserInput') updateUserInput: UpdateUserInput) {
+  async updateUser(
+    @Context('authInfo') authInfo,
+    @Args('updateUserInput') updateUserInput: UpdateUserInput,
+  ) {
+    const user = await this.userService.findOne({ id: authInfo.userId });
+
+    if (!user) {
+      throw new HttpException(
+        { status: HttpStatus.NOT_FOUND, error: 'User not found' },
+        HttpStatus.NOT_FOUND,
+      );
+    }
     const isUpdated = await this.userService.update(updateUserInput);
+
     if (!isUpdated) {
       const error = getErrorCode(errorName.NOT_FOUND);
       throw Error(error);
@@ -86,24 +97,29 @@ export class UserResolver {
   async login(@Args('loginUserInput') loginUserInput: LoginUserInput) {
     const { email, password } = loginUserInput;
     const user = await this.userService.findOne({ email });
+
     if (!user) {
-      const error = getErrorCode(errorName.NOT_FOUND);
-      throw Error(error);
-    } else {
-      const isMatch = await bcrypt.compare(password, user.password);
-      if (!isMatch) {
-        const error = getErrorCode(errorName.NOT_FOUND);
-
-        throw Error(error);
-      } else {
-        const accessToken = jwt.sign({ id: user.id }, this.JWT_SECRET, {
-          expiresIn: process.env.JWT_EXPIRE,
-        });
-
-        return {
-          accessToken,
-        };
-      }
+      throw new HttpException(
+        { status: HttpStatus.NOT_FOUND, error: 'User not found' },
+        HttpStatus.NOT_FOUND,
+      );
     }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      throw new HttpException(
+        { status: HttpStatus.UNAUTHORIZED, error: 'Invalid Credentials' },
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+
+    const accessToken = jwt.sign({ id: user.id }, this.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRE,
+    });
+
+    return {
+      accessToken,
+    };
   }
 }
