@@ -7,6 +7,8 @@ import {
 import { GqlArgumentsHost, GqlExceptionFilter } from '@nestjs/graphql';
 import { CustomHttpExceptionResponse, HttpExceptionResponse } from './types';
 
+import * as fs from 'fs';
+
 @Catch()
 export class AllExceptionsFilter implements GqlExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
@@ -36,7 +38,8 @@ export class AllExceptionsFilter implements GqlExceptionFilter {
       path,
       isHttpError,
     );
-    this.logError(errorResponse, exception);
+    const logError = this.logError(errorResponse, exception);
+    this.writeErrorLogToFile(logError);
 
     return exception;
   }
@@ -60,14 +63,23 @@ export class AllExceptionsFilter implements GqlExceptionFilter {
   logError = (
     errorResponse: CustomHttpExceptionResponse,
     exception: Error,
-  ): void => {
+  ): string => {
     const { statusCode, error, method, path, isHttpError } = errorResponse;
 
-    const errorLog = `Response Code: ${statusCode} - Method: ${method}_${path}
+    const errorLog = `Response Code: ${statusCode} - Path: ${method}_${path} 
     \n
+    ${JSON.stringify(errorResponse)}\n
     ${isHttpError ? exception.stack : error}\n\n
     `;
 
-    console.log(errorLog);
+    console.log(7, errorLog);
+
+    return errorLog;
+  };
+
+  private writeErrorLogToFile = (errorLog: string): void => {
+    fs.appendFile('error.log', errorLog, 'utf8', (error) => {
+      if (error) throw error;
+    });
   };
 }
